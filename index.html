@@ -1,0 +1,1771 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OPERADOR - ÁREA DE MEMBROS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+    <style>
+        :root {
+            --bg-color: #0d0d0d;
+            --panel-color: rgba(20, 20, 25, 0.9);
+            --accent-color: #1a9e5c;
+            --accent-glow: rgba(26, 158, 92, 0.3);
+            --accent-secondary: #2a7a6d;
+            --text-color: #d4d4d4;
+            --border-color: rgba(26, 158, 92, 0.15);
+            --danger-color: #c41e3a;
+            --glass-bg: rgba(20, 20, 28, 0.85);
+            --anim-speed: 4s;
+        }
+
+        /* Efeito de Borda Animada */
+        .animated-border-box {
+            position: relative;
+            padding: 1px;
+            border-radius: 12px;
+            overflow: hidden;
+            background: rgba(26, 158, 92, 0.1);
+            margin-bottom: 25px;
+        }
+
+        .animated-border-box::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(
+                transparent,
+                transparent,
+                var(--accent-color),
+                transparent,
+                transparent
+            );
+            animation: rotate-border var(--anim-speed) linear infinite;
+        }
+
+        .animated-border-box::after {
+            content: '';
+            position: absolute;
+            inset: 2px;
+            background: var(--bg-color);
+            border-radius: 10px;
+            z-index: 1;
+        }
+
+        .animated-border-content {
+            position: relative;
+            z-index: 2;
+            padding: 25px;
+        }
+
+        @keyframes rotate-border {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(20, 20, 20, 0) 0%, #050505 100%),
+                url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
+            background-attachment: fixed;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 9999;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+            opacity: 0.15;
+        }
+
+        /* Layout */
+        .app-container { display: flex; min-height: 100vh; }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 300px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            box-shadow: 10px 0 30px rgba(0,0,0,0.5);
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .sidebar-header h1 {
+            color: var(--accent-color);
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .module-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .module-item {
+            padding: 14px 18px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            letter-spacing: 0.5px;
+        }
+
+        .module-item:hover {
+            border-color: var(--accent-color);
+            background: rgba(0, 255, 65, 0.05);
+        }
+
+        .module-item.active {
+            background: var(--accent-color);
+            color: #000;
+            font-weight: bold;
+        }
+
+        .module-item.completed::after {
+            content: ' [OK]';
+            font-size: 0.7rem;
+            margin-left: auto;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            max-width: 100%;
+            background: linear-gradient(135deg, #0d0d0d 0%, #1a1a2e 50%, #0f0f1e 100%);
+            background-image: url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1920&q=80&blend=https://images.unsplash.com/photo-1550439062-609e7e7dfa6a?w=1920&q=80&blend_mode=darken');
+            background-size: cover;
+            background-attachment: fixed;
+            position: relative;
+        }
+
+        .main-content::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(45deg, rgba(26, 158, 92, 0.02) 0%, rgba(42, 122, 109, 0.02) 100%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+            .top-bar {
+            height: 70px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            padding: 0 30px;
+            position: sticky;
+            top: 0;
+            z-index: 900;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: rgba(0, 255, 65, 0.1);
+            border: 1px solid var(--accent-color);
+            color: var(--accent-color);
+            padding: 8px 20px;
+            cursor: pointer;
+            font-weight: bold;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            border-radius: 2px;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            justify-self: start;
+        }
+
+        .mobile-menu-btn:hover {
+            background: var(--accent-color);
+            color: #000;
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.3);
+        }
+
+        @keyframes pulse-button {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 255, 65, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(0, 255, 65, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 255, 65, 0); }
+        }
+
+        .content-area {
+            padding: 40px 20px;
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .content-wrapper {
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .video-container {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #000;
+            border: 1px solid var(--border-color);
+            margin-bottom: 40px;
+            position: relative;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 20px rgba(0, 255, 65, 0.05);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        /* Custom Player Styles */
+        .plyr {
+            width: 100%;
+            height: 100%;
+            --plyr-color-main: var(--accent-color);
+        }
+        
+        /* Esconder elementos do YouTube dentro do Plyr */
+        .plyr__video-embed iframe {
+            top: -50% !important;
+            height: 200% !important;
+        }
+
+        iframe, video {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .lesson-info h2 {
+            color: #ffffff;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 900;
+            margin: 40px 0;
+            font-size: 2.8rem;
+            letter-spacing: 2px;
+            text-align: center;
+            text-transform: uppercase;
+            text-shadow: 0 0 20px rgba(26, 158, 92, 0.6), 0 0 40px rgba(26, 158, 92, 0.2);
+            animation: titleGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes titleGlow {
+            from { text-shadow: 0 0 20px rgba(26, 158, 92, 0.6), 0 0 40px rgba(26, 158, 92, 0.2); }
+            to { text-shadow: 0 0 30px rgba(26, 158, 92, 0.9), 0 0 60px rgba(26, 158, 92, 0.4); transform: scale(1.02); }
+        }
+
+        @media (max-width: 768px) {
+            .lesson-info h2 {
+                font-size: 1.8rem;
+                margin: 30px 0;
+            }
+        }
+
+        .lesson-desc {
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-left: 4px solid var(--accent-color);
+            border-radius: 6px;
+            margin-bottom: 30px;
+            white-space: pre-wrap;
+            border-top: 1px solid rgba(0, 255, 65, 0.2);
+            border-right: 1px solid rgba(0, 255, 65, 0.1);
+            border-bottom: 1px solid rgba(0, 255, 65, 0.1);
+        }
+
+        .animated-border-content h3 { 
+            color: var(--accent-color); 
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            margin-bottom: 12px; 
+            font-size: 1rem; 
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .btn {
+            background: rgba(26, 158, 92, 0.08);
+            border: 1px solid var(--accent-color);
+            color: var(--accent-color);
+            padding: 14px 28px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            text-align: center;
+            letter-spacing: 1.5px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 12px rgba(26, 158, 92, 0.12);
+            margin: 5px;
+        }
+
+        .btn:hover {
+            background: var(--accent-color);
+            color: #0d0d0d;
+            box-shadow: 0 0 30px var(--accent-glow), 0 0 60px rgba(26, 158, 92, 0.2);
+            transform: translateY(-2px);
+            font-weight: 700;
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+        }
+
+        .btn-danger {
+            border-color: var(--danger-color);
+            color: var(--danger-color);
+        }
+
+        .btn-danger:hover {
+            background: var(--danger-color);
+            color: #fff;
+        }
+
+        /* PDF Library Styles */
+        .pdf-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .pdf-viewer-container {
+            width: 100%;
+            height: 85vh;
+            background: #1a1a1a;
+            border: 1px solid var(--border-color);
+            margin-top: 20px;
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        
+        .pdf-protection-layer {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 200px;
+            height: 60px;
+            z-index: 100;
+            background: transparent;
+            pointer-events: all;
+        }
+
+        .pdf-viewer-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .pdf-card {
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 255, 65, 0.2);
+            padding: 0;
+            border-radius: 12px;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+
+        .pdf-cover {
+            width: 100%;
+            height: 180px;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            border-bottom: 1px solid rgba(0, 255, 65, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .pdf-content {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .pdf-card:hover {
+            border-color: var(--accent-color);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 255, 65, 0.1);
+        }
+
+        .pdf-icon {
+            font-size: 2.5rem;
+            color: var(--accent-color);
+            margin-bottom: 10px;
+        }
+
+        .pdf-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #fff;
+        }
+
+        .pdf-desc {
+            font-size: 0.85rem;
+            color: #888;
+            flex: 1;
+        }
+
+        /* Admin Panel */
+        .admin-panel {
+            background: rgba(20, 20, 25, 0.95);
+            border: 1px solid var(--accent-color);
+            padding: 30px;
+            margin-bottom: 40px;
+            border-radius: 8px;
+            box-shadow: 0 0 30px rgba(26, 158, 92, 0.1);
+        }
+
+        .admin-panel h4 { color: var(--accent-color); margin-bottom: 15px; }
+        .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        input, textarea, select {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid #333;
+            color: #fff;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            font-family: 'Inter', sans-serif;
+        }
+        input:focus, textarea:focus {
+            border-color: var(--accent-color);
+            outline: none;
+        }
+
+        /* Auth Screens */
+        .auth-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #0d0d0d 0%, #1a1a2e 50%, #0f0f1e 100%);
+            background-image: url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1920&q=80&blend=https://images.unsplash.com/photo-1550439062-609e7e7dfa6a?w=1920&q=80&blend_mode=darken');
+            background-size: cover;
+            background-position: center;
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .auth-box {
+            width: 90%;
+            max-width: 400px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            padding: 40px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            border-radius: 8px;
+            margin: auto;
+        }
+
+        .auth-box h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            letter-spacing: 3px;
+            color: var(--text-color);
+            font-weight: 800;
+        }
+
+        .hidden { display: none !important; }
+
+        /* QUIZ SCREEN */
+        .quiz-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-color);
+            z-index: 1500;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start; /* Mudado para flex-start para permitir scroll natural */
+            padding: 60px 20px; /* Aumentado o padding superior para não colar no topo */
+            overflow-y: auto;
+        }
+
+        .quiz-container {
+            width: 95%;
+            max-width: 600px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 255, 65, 0.3);
+            padding: 40px 30px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5), 0 0 30px rgba(0, 255, 65, 0.1);
+            border-radius: 12px;
+            margin: 20px auto; /* Adicionado margem para garantir centralização vertical no scroll */
+        }
+
+        .quiz-header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 20px;
+        }
+
+        .quiz-header h1 {
+            color: var(--text-color);
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            font-size: 1.6rem;
+            letter-spacing: 3px;
+            margin-bottom: 12px;
+            animation: pulse 2s infinite;
+            line-height: 1.3; /* Garantir que o texto não fique espremido */
+        }
+
+        .quiz-header p {
+            color: #888;
+            font-size: 0.8rem;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .quiz-progress {
+            width: 100%;
+            height: 4px;
+            background: #222;
+            margin-bottom: 30px;
+            border: 1px solid var(--border-color);
+        }
+
+        .quiz-progress-bar {
+            height: 100%;
+            background: var(--accent-color);
+            transition: width 0.3s ease;
+        }
+
+        .quiz-question {
+            margin-bottom: 30px;
+        }
+
+        .quiz-question h3 {
+            color: var(--accent-color);
+            font-size: 1rem;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .quiz-option {
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            background: rgba(0, 255, 65, 0.02);
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .quiz-option:hover {
+            border-color: var(--accent-color);
+            background: rgba(0, 255, 65, 0.08);
+        }
+
+        .quiz-option.selected {
+            background: var(--accent-color);
+            color: #000;
+            border-color: var(--accent-color);
+        }
+
+        .quiz-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .quiz-buttons button {
+            flex: 1;
+        }
+
+        .quiz-result {
+            text-align: center;
+            animation: slideIn 0.5s ease;
+        }
+
+        .quiz-result h2 {
+            color: var(--accent-color);
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+        }
+
+        .quiz-result .secret-message {
+            background: rgba(0, 255, 65, 0.05);
+            border: 1px dashed var(--accent-color);
+            padding: 20px;
+            margin-bottom: 30px;
+            font-size: 0.9rem;
+            line-height: 1.8;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* VSL Screen */
+        .vsl-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('https://files.manuscdn.com/user_upload_by_module/session_file/310519663278675301/ekzosYhCgvumvTZw.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            z-index: 1500;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .vsl-container {
+            width: 100%;
+            max-width: 900px;
+            aspect-ratio: 16/9;
+            background: #000;
+            border: 1px solid var(--accent-color);
+            margin-bottom: 30px;
+        }
+
+        /* Social Links */
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .social-btn {
+            flex: 1;
+            min-width: 120px;
+            text-align: center;
+            padding: 15px 20px;
+            border: 2px solid var(--accent-color);
+            color: #fff;
+            background: rgba(0, 255, 65, 0.1);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: bold;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            letter-spacing: 1px;
+        }
+
+        .social-btn:hover {
+            background: var(--accent-color);
+            color: #000;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 255, 65, 0.3);
+        }
+
+        /* Floating Social Buttons */
+        .floating-social {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 999;
+        }
+
+        .floating-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 2px solid var(--accent-color);
+            background: var(--panel-color);
+            color: var(--accent-color);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(0, 255, 65, 0.2);
+        }
+
+        .floating-btn:hover {
+            background: var(--accent-color);
+            color: #000;
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0, 255, 65, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .floating-social {
+                bottom: 10px;
+                right: 10px;
+            }
+            .floating-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+            .sidebar {
+                position: fixed;
+                left: -300px;
+                height: 100%;
+            }
+            .sidebar.open {
+                transform: translateX(300px);
+            }
+            .mobile-menu-btn {
+                display: block;
+            }
+            .admin-grid {
+                grid-template-columns: 1fr;
+            }
+            .top-bar {
+                padding: 0 15px;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes scanline {
+            0% { bottom: 100%; }
+            100% { bottom: 0%; }
+        }
+
+        .animate-fade {
+            animation: fadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .scanline-effect {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 2px;
+            background: rgba(0, 255, 65, 0.1);
+            box-shadow: 0 0 10px var(--accent-color);
+            animation: scanline 4s linear infinite;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* HUD Elements */
+        .hud-corner {
+            position: fixed;
+            font-size: 0.65rem;
+            color: var(--accent-color);
+            letter-spacing: 2px;
+            font-weight: 600;
+            z-index: 100;
+            opacity: 0.5;
+        }
+
+        .hud-top-left {
+            top: 15px; left: 20px;
+        }
+
+        .hud-top-right {
+            top: 15px; right: 20px;
+            text-align: right;
+        }
+
+        .hud-bottom-left {
+            bottom: 15px; left: 20px;
+        }
+
+        .hud-bottom-right {
+            bottom: 15px; right: 20px;
+            text-align: right;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background: var(--accent-color);
+            border-radius: 50%;
+            margin-right: 6px;
+            animation: pulse 2.5s infinite;
+            box-shadow: 0 0 8px var(--accent-color);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HUD Elements -->
+    <div class="hud-corner hud-top-left">
+        <div>SYS.OPERADOR v2.1</div>
+        <div style="font-size: 0.5rem; margin-top: 3px; color: rgba(212,212,212,0.4);">RESTRICTED</div>
+    </div>
+    <div class="hud-corner hud-top-right">
+        <div><span class="status-indicator"></span>ONLINE</div>
+        <div style="font-size: 0.5rem; margin-top: 3px; color: rgba(212,212,212,0.4);">SECURE</div>
+    </div>
+    <div class="hud-corner hud-bottom-left">
+        <div>PROTOCOL: ELITE</div>
+        <div style="font-size: 0.5rem; margin-top: 3px; color: rgba(212,212,212,0.4);">ACCESS GRANTED</div>
+    </div>
+    <div class="hud-corner hud-bottom-right">
+        <div id="hudTime">00:00:00</div>
+        <div style="font-size: 0.5rem; margin-top: 3px; color: rgba(212,212,212,0.4);">UTC</div>
+    </div>
+
+    <!-- QUIZ SCREEN (TRIAGEM SECRETA) -->
+    <div id="quizScreen" class="quiz-screen">
+        <div class="quiz-container animate-fade">
+            <div class="scanline-effect"></div>
+            <div class="quiz-header">
+                <h1>PROTOCOLO DE TRIAGEM</h1>
+                <p>Análise de Compatibilidade Operacional</p>
+            </div>
+
+            <div class="quiz-progress">
+                <div class="quiz-progress-bar" id="quizProgressBar" style="width: 0%;"></div>
+            </div>
+
+            <div id="quizContent">
+                <!-- Quiz questions will be injected here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- VSL Screen -->
+    <div id="vslScreen" class="vsl-screen hidden animate-fade">
+        <h1 style="color: var(--accent-color); margin-bottom: 20px; letter-spacing: 5px;">OPERADOR</h1>
+        <div class="vsl-container" id="vslPlayer">
+            <!-- VSL Video will be injected here -->
+        </div>
+        <button class="btn" style="font-size: 1.2rem; padding: 15px 40px;" onclick="showAuth()">ACESSAR O SISTEMA OPERADOR</button>
+    </div>
+
+    <!-- Auth Screen -->
+    <div id="authScreen" class="auth-screen hidden">
+        <div class="auth-box animate-fade" id="loginBox">
+            <div style="text-align: center; margin-bottom: 15px;">
+                <div style="font-size: 0.7rem; color: var(--accent-secondary); letter-spacing: 4px; text-transform: uppercase; font-weight: 700;">SISTEMA OPERADOR</div>
+            </div>
+            <h2>ACESSO OPERACIONAL</h2>
+            <div style="height: 1px; background: linear-gradient(90deg, transparent, var(--accent-color), transparent); margin-bottom: 25px;"></div>
+            <input type="email" id="loginEmail" placeholder="E-MAIL OPERACIONAL">
+            <input type="password" id="loginPass" placeholder="CODIGO DE ACESSO">
+            <button class="btn" style="width: 100%; margin-bottom: 15px; padding: 16px;" onclick="handleLogin()">AUTENTICAR</button>
+            <div style="text-align: center; font-size: 0.65rem; color: rgba(212,212,212,0.5); margin-top: 20px; letter-spacing: 1px;">
+                <div>PROTOCOLO DE SEGURANCA ATIVO</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="app" class="app-container hidden">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h1>OPERADOR</h1>
+                <div id="syncIndicator" class="sync-status sync-offline">OFFLINE</div>
+            </div>
+            <div class="module-list" id="moduleList">
+                <!-- Modules will be injected here -->
+            </div>
+            <div style="padding: 20px; border-top: 1px solid var(--border-color);">
+                <button class="btn btn-danger" style="width: 100%;" onclick="logout()">LOGOUT</button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-bar">
+                <button class="mobile-menu-btn" onclick="toggleMobileMenu()">MÓDULOS</button>
+                <div id="currentModuleTitle" style="display: none;"></div>
+                <div id="userNameDisplay" style="font-size: 0.7rem; color: #888; text-align: right;"></div>
+            </header>
+
+            <div class="content-area">
+                <div class="content-wrapper">
+                <!-- Admin Panel -->
+                <div id="adminPanel" class="admin-panel hidden">
+                    <h4>PAINEL DE CONTROLE OPERACIONAL</h4>
+                    
+                    <!-- VSL Edit -->
+                    <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #333;">
+                        <p style="font-size: 0.7rem; color: var(--accent-color); margin-bottom: 10px;">VÍDEO DE APRESENTAÇÃO (VSL)</p>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" id="vslUrlInput" placeholder="URL da VSL (YouTube, Vimeo, MP4)">
+                            <button class="btn" onclick="updateVSL()">ATUALIZAR VSL</button>
+                        </div>
+                    </div>
+
+                    <!-- Lesson Edit -->
+                    <div id="lessonEditSection">
+                        <p style="font-size: 0.7rem; color: var(--accent-color); margin-bottom: 10px;">EDITAR AULA SELECIONADA</p>
+                        <div class="admin-grid">
+                            <div>
+                                <label style="font-size: 0.6rem;">URL DO VÍDEO</label>
+                                <input type="text" id="editVideoUrl" placeholder="URL do Vídeo">
+                                <button class="btn" style="width: 100%; margin-bottom: 10px;" onclick="triggerUpload('video')">SUBIR ARQUIVO</button>
+                            </div>
+                            <div>
+                                <label style="font-size: 0.6rem;">DESCRIÇÃO DA AULA</label>
+                                <textarea id="editDesc" rows="4" placeholder="Descrição da aula..."></textarea>
+                            </div>
+                        </div>
+                        <button class="btn" style="width: 100%; margin-top: 10px;" onclick="saveLessonChanges()">SINCRONIZAR ALTERAÇÕES GLOBALMENTE</button>
+                    </div>
+
+                    <!-- PDF Edit Section -->
+                    <div id="pdfEditSection" class="hidden" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #333;">
+                        <div style="background: rgba(26, 158, 92, 0.1); padding: 20px; border-radius: 8px; border: 1px dashed var(--accent-color); text-align: center; margin-bottom: 20px;">
+                            <p style="margin-bottom: 15px; font-size: 0.9rem; color: var(--accent-color); font-weight: bold;">UPLOAD DIRETO DE PDF</p>
+                            <button class="btn" onclick="triggerUpload('pdf')" style="padding: 15px 30px; font-size: 1rem; width: 100%;">📤 SELECIONAR PDF DO DISPOSITIVO</button>
+                            <p style="margin-top: 10px; font-size: 0.7rem; color: #888;">O PDF SERÁ ADICIONADO AUTOMATICAMENTE À BIBLIOTECA APÓS O UPLOAD.</p>
+                        </div>
+                        
+                        <details style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 4px;">
+                            <summary style="cursor: pointer; font-size: 0.7rem; color: #888; text-align: center;">OPÇÕES AVANÇADAS (LINK MANUAL)</summary>
+                            <div class="admin-grid" style="margin-top: 15px;">
+                                <div>
+                                    <input type="text" id="newPdfTitle" placeholder="Título do PDF">
+                                    <input type="text" id="newPdfUrl" placeholder="URL do PDF">
+                                    <input type="text" id="newPdfCover" placeholder="URL da Capa (Opcional)">
+                                </div>
+                                <div>
+                                    <textarea id="newPdfDesc" rows="3" placeholder="Descrição do material..."></textarea>
+                                    <button class="btn" style="width: 100%;" onclick="addNewPdf()">ADICIONAR MANUALMENTE</button>
+                                </div>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+
+                <!-- Lesson View -->
+                <div id="lessonView">
+                    <div class="video-container" id="videoPlayer">
+                        <!-- Video will be injected here -->
+                    </div>
+                    
+                    <div class="lesson-info">
+                        <h2 id="lessonTitle"></h2>
+                        
+                        <div class="animated-border-box">
+                            <div class="animated-border-content">
+                                <div class="lesson-desc" id="lessonDescription"></div>
+                            </div>
+                        </div>
+                        
+                        <div id="gptAccess" class="animated-border-box hidden">
+                            <div class="animated-border-content">
+                                <h3>AGENTE IA: MODO OPERADOR</h3>
+                                <p style="font-size: 0.8rem; margin-bottom: 15px;">Acesse a inteligência tática para suporte em tempo real.</p>
+                                <a href="https://chatgpt.com/g/g-695cf96125dc8191851b80cf451c34ce-modo-operador" target="_blank" class="btn">INICIAR CONEXÃO IA</a>
+                            </div>
+                        </div>
+
+                        <div class="animated-border-box">
+                            <div class="animated-border-content">
+                                <h3>MISSÃO DO OPERADOR</h3>
+                                <p id="lessonMission" style="font-size: 0.9rem;"></p>
+                                <div style="text-align: center;">
+                                    <button id="completeBtn" class="btn" style="margin-top: 15px; min-width: 250px;" onclick="completeMission()">MARCAR COMO CONCLUÍDA</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PDF Library View -->
+                <div id="pdfLibraryView" class="hidden">
+                    <h2 style="color: var(--accent-color); margin-bottom: 10px;">BIBLIOTECA DE MATERIAIS</h2>
+                    <p style="font-size: 0.8rem; color: #888; margin-bottom: 30px;">Documentos técnicos, manuais e ferramentas de suporte.</p>
+                    <div class="pdf-grid" id="pdfGrid">
+                <!-- PDFs will be injected here -->
+            </div>
+
+            <!-- PDF Viewer -->
+            <div id="pdfViewer" class="hidden">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3 id="pdfViewerTitle" style="color: var(--accent-color);">VISUALIZANDO MATERIAL</h3>
+                    <button class="btn" onclick="closePdfViewer()">VOLTAR À BIBLIOTECA</button>
+                </div>
+                <div class="pdf-viewer-container">
+                    <div class="pdf-protection-layer"></div>
+                    <iframe id="pdfFrame" src="" allow="autoplay"></iframe>
+                </div>
+                <p style="font-size: 0.7rem; color: #555; margin-top: 10px; text-align: center;">MODO DE VISUALIZAÇÃO PROTEGIDA ATIVO</p>
+            </div>
+        </div>
+                </div> <!-- End content-wrapper -->
+
+                <!-- Footer Social -->
+                <div class="social-links">
+                    <a href="https://chat.whatsapp.com/Il5u4hpMG2yHQeUixpnSnd" target="_blank" class="social-btn">ÁREA DE MEMBROS</a>
+                    <a href="https://t.me/+ltuTMXJHdm84NjUx" target="_blank" class="social-btn">COMUNIDADE SECRETA</a>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <input type="file" id="fileUpload" class="hidden" onchange="handleFileUpload(event)">
+
+    <script>
+        // CONFIGURAÇÃO GLOBAL - JSONBIN
+        const SYNC_CONFIG = {
+            enabled: true,
+            binId: '6968beddd0ea881f406d6a61',
+            apiKey: '$2a$10$i8vQRllj3BcgYIrc2bTuquanGoyiPhMlrOwgrnMWlGwCHj7QeVuMS',
+            baseUrl: 'https://api.jsonbin.io/v3/b'
+        };
+
+        // ESTADO DO APLICATIVO
+        let state = {
+            currentUser: null,
+            currentLessonIndex: 0,
+            isPdfView: false,
+            quizCompleted: false,
+            quizAnswers: [],
+            data: {
+                vslUrl: '',
+                users: [],
+                lessons: [],
+                pdfs: []
+            }
+        };
+
+        // QUIZ DATA - VARIAÇÃO 1: TESTE DE APTIDÃO DE ELITE
+        const quizQuestions = [
+            {
+                question: "Você se considera um executor de alto nível ou apenas mais um espectador no sistema?",
+                options: [
+                    "Executor de alto nível - Já tenho resultados comprovados",
+                    "Executor em desenvolvimento - Tenho potencial mas falta o método",
+                    "Espectador consciente - Vejo oportunidades mas não ajo",
+                    "Espectador passivo - Ainda estou descobrindo meu caminho"
+                ]
+            },
+            {
+                question: "Se o sistema entrasse em colapso hoje, você teria as ferramentas necessárias para operar de forma independente?",
+                options: [
+                    "Sim, totalmente. Sou autossuficiente em minha área",
+                    "Parcialmente. Tenho base, mas preciso de refinamento",
+                    "Não. Dependo de estruturas externas para funcionar",
+                    "Não faço ideia. Nunca pensei nisso"
+                ]
+            },
+            {
+                question: "Você está disposto a abandonar a mediocridade para acessar protocolos que 99% das pessoas desconhecem?",
+                options: [
+                    "Absolutamente. Já estou cansado de ser comum",
+                    "Sim, mas preciso de garantias de que vale a pena",
+                    "Talvez. Depende do esforço necessário",
+                    "Não. Prefiro a segurança do conhecido"
+                ]
+            },
+            {
+                question: "O que você está realmente buscando neste momento?",
+                options: [
+                    "Domínio absoluto e independência financeira",
+                    "Um método comprovado para acelerar meus resultados",
+                    "Inspiração e motivação para começar",
+                    "Uma comunidade de pessoas com mentalidade similar"
+                ]
+            },
+            {
+                question: "Qual é o seu maior bloqueio para atingir o próximo nível?",
+                options: [
+                    "Falta de inteligência estratégica e visão sistêmica",
+                    "Falta de disciplina para executar consistentemente",
+                    "Falta de acesso a informações de elite",
+                    "Falta de coragem para tomar decisões ousadas"
+                ]
+            }
+        ];
+
+        // INICIALIZAÇÃO
+        // HUD Time Update
+        setInterval(() => {
+            const now = new Date();
+            const time = now.toLocaleTimeString('pt-BR', { hour12: false });
+            const hudTime = document.getElementById('hudTime');
+            if (hudTime) hudTime.innerText = time;
+        }, 1000);
+
+        window.onload = async () => {
+            await loadData();
+            renderQuiz();
+        };
+
+        async function loadData() {
+            try {
+                const res = await fetch(`${SYNC_CONFIG.baseUrl}/${SYNC_CONFIG.binId}/latest`, {
+                    headers: { 'X-Master-Key': SYNC_CONFIG.apiKey }
+                });
+                const json = await res.json();
+                
+                // Validação e normalização de dados
+                const record = json.record || {};
+                state.data = {
+                    vslUrl: record.vslUrl || '',
+                    users: record.users || [],
+                    lessons: record.lessons || [],
+                    pdfs: record.pdfs || []
+                };
+
+                // Se não houver aulas, carregar padrão
+                if(!state.data.lessons || state.data.lessons.length === 0) {
+                    state.data.lessons = [
+                        { title: "O MANIFESTO", video: "", desc: "O início da jornada.", mission: "Assista à introdução.", gpt: false },
+                        { title: "MODE OPERATOR", video: "", desc: "Mentalidade de elite.", mission: "Defina seu ritual.", gpt: false },
+                        { title: "O SISTEMA O.P.E.R.A.D.O.R", video: "", desc: "As 8 fases da operação.", mission: "Mapeie sua rotina.", gpt: false },
+                        { title: "AGENTES DE IA", video: "", desc: "Tecnologia aplicada.", mission: "Conecte-se ao Agente.", gpt: true },
+                        { title: "REVISÃO FRIA", video: "", desc: "Feedback técnico.", mission: "Analise seus dados.", gpt: false },
+                        { title: "AUTONOMIA E SAÍDA", video: "", desc: "Protocolo final.", mission: "Opere de forma independente.", gpt: false }
+                    ];
+                }
+
+                document.getElementById('syncIndicator').className = 'sync-status sync-online';
+                document.getElementById('syncIndicator').innerText = 'ONLINE';
+            } catch (e) {
+                console.error("Erro ao carregar dados:", e);
+                document.getElementById('syncIndicator').className = 'sync-status sync-offline';
+                document.getElementById('syncIndicator').innerText = 'OFFLINE';
+            }
+        }
+
+        async function syncData() {
+            try {
+                await fetch(`${SYNC_CONFIG.baseUrl}/${SYNC_CONFIG.binId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Master-Key': SYNC_CONFIG.apiKey
+                    },
+                    body: JSON.stringify(state.data)
+                });
+                return true;
+            } catch (e) {
+                console.error("Erro na sincronização:", e);
+                alert("ERRO NA SINCRONIZAÇÃO GLOBAL.");
+                return false;
+            }
+        }
+
+        // QUIZ LOGIC
+        function renderQuiz() {
+            const container = document.getElementById('quizContent');
+            const currentQuestion = quizQuestions[state.quizAnswers.length];
+
+            if (!currentQuestion) {
+                showQuizResult();
+                return;
+            }
+
+            const progress = ((state.quizAnswers.length / quizQuestions.length) * 100);
+            document.getElementById('quizProgressBar').style.width = progress + '%';
+
+            container.innerHTML = `
+                <div class="quiz-question">
+                    <h3>PERGUNTA ${state.quizAnswers.length + 1}/${quizQuestions.length}</h3>
+                    <h3 style="margin-bottom: 25px; margin-top: 15px;">${currentQuestion.question}</h3>
+                    <div class="quiz-options">
+                        ${currentQuestion.options.map((option, idx) => `
+                            <div class="quiz-option" onclick="selectAnswer(${idx})" id="option-${idx}">
+                                ${option}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function selectAnswer(optionIndex) {
+            state.quizAnswers.push(optionIndex);
+            
+            // Animação de seleção
+            const option = document.getElementById(`option-${optionIndex}`);
+            option.classList.add('selected');
+            
+            setTimeout(() => {
+                if (state.quizAnswers.length < quizQuestions.length) {
+                    renderQuiz();
+                } else {
+                    showQuizResult();
+                }
+            }, 600);
+        }
+
+        function showQuizResult() {
+            const container = document.getElementById('quizContent');
+            
+            // Calcular score
+            const score = state.quizAnswers.reduce((a, b) => a + b, 0);
+            const maxScore = (quizQuestions.length - 1) * 3;
+            const percentage = Math.round((score / maxScore) * 100);
+
+            // Mensagens secretas baseadas no score - Variação 1 (Elite)
+            let secretMessage = "";
+            if (percentage <= 30) {
+                secretMessage = "NÍVEL CRÍTICO: OPERADOR DETECTADO\n\nSeu perfil indica que você JÁ é um executor de elite. Você não veio aqui para aprender o básico - você veio para dominar os protocolos secretos que separam os 1% do resto. Este sistema foi construído para pessoas exatamente como você. Bem-vindo ao círculo restrito.";
+            } else if (percentage <= 60) {
+                secretMessage = "COMPATIBILIDADE MÁXIMA: EXECUTOR EM ASCENSÃO\n\nVocê está no caminho certo. Você já tem a mentalidade de um operador, mas falta o método. Este programa foi criado para transformar executores em desenvolvimento em máquinas de resultados. Você está pronto para o próximo nível.";
+            } else {
+                secretMessage = "POTENCIAL DESBLOQUEADO: INICIAÇÃO AUTORIZADA\n\nVocê chegou aqui porque sente que há algo maior dentro de você. Você está certo. Este sistema vai revelar os protocolos que transformam potencial em domínio. Sua jornada começa agora.";
+            }
+
+            container.innerHTML = `
+                <div class="quiz-result">
+                    <h2>ANÁLISE CONCLUÍDA</h2>
+                    <div class="secret-message">
+                        ${secretMessage}
+                    </div>
+                    <p style="color: #888; font-size: 0.8rem; margin-bottom: 20px;">Compatibilidade: ${percentage}%</p>
+                    <button class="btn" style="font-size: 1rem; padding: 12px 30px;" onclick="completeQuiz()">ACESSAR OPERADOR</button>
+                </div>
+            `;
+        }
+
+        function completeQuiz() {
+            pauseAllVideos();
+            state.quizCompleted = true;
+            document.getElementById('quizScreen').classList.add('hidden');
+            document.getElementById('vslScreen').classList.remove('hidden');
+            renderVSL();
+        }
+
+        // VSL & AUTH
+        function renderVSL() {
+            const container = document.getElementById('vslPlayer');
+            container.innerHTML = renderPlayer(state.data.vslUrl || '');
+        }
+
+        function showAuth() {
+            pauseAllVideos();
+            document.getElementById('vslScreen').classList.add('hidden');
+            document.getElementById('authScreen').classList.remove('hidden');
+        }
+
+        function toggleAuth() {
+            document.getElementById('loginBox').classList.toggle('hidden');
+            document.getElementById('registerBox').classList.toggle('hidden');
+        }
+
+        function handleLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const pass = document.getElementById('loginPass').value;
+
+            // Admin Hardcoded Check
+            if (email === 'rsdluiz@outlook.com' && pass === 'Rose@1576') {
+                state.currentUser = { name: 'ADMINISTRADOR', email, admin: true, progress: [] };
+                startApp();
+                return;
+            }
+
+            // Qualquer email com a senha 'ritmo'
+            if (pass === 'ritmo') {
+                state.currentUser = { name: 'OPERADOR', email, admin: false, progress: [] };
+                startApp();
+                return;
+            }
+
+            const user = state.data.users.find(u => u.email === email && u.pass === pass);
+            
+            if (user) {
+                state.currentUser = user;
+                startApp();
+            } else {
+                alert("ACESSO NEGADO. VERIFIQUE AS CREDENCIAIS.");
+            }
+        }
+
+        async function handleRegister() {
+            const name = document.getElementById('regName').value;
+            const email = document.getElementById('regEmail').value;
+
+            if (!name || !email) return alert("PREENCHA TODOS OS CAMPOS.");
+            
+            if (state.data.users.find(u => u.email === email)) {
+                return alert("E-MAIL JÁ CADASTRADO.");
+            }
+
+            const newUser = { name, email, pass: 'ritmo', admin: false, progress: [] };
+            state.data.users.push(newUser);
+            
+            const success = await syncData();
+            if (success) {
+                alert("CADASTRO REALIZADO. USE A SENHA REVELADA NO VÍDEO PARA ENTRAR.");
+                toggleAuth();
+            }
+        }
+
+        // APP LOGIC
+        function startApp() {
+            document.getElementById('authScreen').classList.add('hidden');
+            document.getElementById('app').classList.remove('hidden');
+            document.getElementById('userNameDisplay').innerText = state.currentUser.name.toUpperCase();
+            
+            if (state.currentUser.admin) {
+                document.getElementById('adminPanel').classList.remove('hidden');
+                document.getElementById('vslUrlInput').value = state.data.vslUrl || '';
+            }
+
+            renderModules();
+            showLesson(0);
+        }
+
+        function renderModules() {
+            const list = document.getElementById('moduleList');
+            list.innerHTML = '';
+
+            if (state.data.lessons) {
+                state.data.lessons.forEach((lesson, index) => {
+                    const item = document.createElement('div');
+                    item.className = `module-item ${state.currentLessonIndex === index && !state.isPdfView ? 'active' : ''}`;
+                    const isDone = state.currentUser.progress && state.currentUser.progress.includes(index);
+                    if (isDone) item.classList.add('completed');
+                    
+                    item.innerText = `AULA ${String(index + 1).padStart(2, '0')}`;
+                    item.onclick = () => showLesson(index);
+                    list.appendChild(item);
+                });
+            }
+
+            // Adicionar Módulo de PDFs
+            const pdfItem = document.createElement('div');
+            pdfItem.className = `module-item ${state.isPdfView ? 'active' : ''}`;
+            pdfItem.style.marginTop = '20px';
+            pdfItem.style.borderTop = '1px solid #333';
+            pdfItem.innerText = `MATERIAIS PDF`;
+            pdfItem.onclick = showPdfLibrary;
+            list.appendChild(pdfItem);
+        }
+
+        function showLesson(index) {
+            pauseAllVideos();
+            state.isPdfView = false;
+            state.currentLessonIndex = index;
+            const lesson = state.data.lessons[index];
+
+            if (!lesson) return;
+
+            document.getElementById('lessonView').classList.remove('hidden');
+            document.getElementById('pdfLibraryView').classList.add('hidden');
+            document.getElementById('pdfEditSection').classList.add('hidden');
+            document.getElementById('lessonEditSection').classList.remove('hidden');
+
+            document.getElementById('currentModuleTitle').innerText = lesson.title;
+            document.getElementById('lessonTitle').innerText = lesson.title;
+            document.getElementById('lessonDescription').innerText = lesson.desc;
+            document.getElementById('lessonMission').innerText = lesson.mission;
+            document.getElementById('videoPlayer').innerHTML = renderPlayer(lesson.video);
+            
+            if (lesson.gpt) document.getElementById('gptAccess').classList.remove('hidden');
+            else document.getElementById('gptAccess').classList.add('hidden');
+
+            if (state.currentUser.admin) {
+                document.getElementById('editVideoUrl').value = lesson.video || '';
+                document.getElementById('editDesc').value = lesson.desc || '';
+            }
+
+            renderModules();
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.remove('open');
+            }
+        }
+
+        function showPdfLibrary() {
+            pauseAllVideos();
+            state.isPdfView = true;
+            document.getElementById('lessonView').classList.add('hidden');
+            document.getElementById('pdfLibraryView').classList.remove('hidden');
+            document.getElementById('currentModuleTitle').innerText = "BIBLIOTECA DE MATERIAIS";
+            
+            if (state.currentUser.admin) {
+                document.getElementById('pdfEditSection').classList.remove('hidden');
+                document.getElementById('lessonEditSection').classList.add('hidden');
+            }
+
+            renderPdfs();
+            renderModules();
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.remove('open');
+            }
+        }
+
+        function renderPdfs() {
+            const grid = document.getElementById('pdfGrid');
+            grid.innerHTML = '';
+
+            if (!state.data.pdfs || state.data.pdfs.length === 0) {
+                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #555; padding: 40px;">NENHUM MATERIAL DISPONÍVEL AINDA.</p>';
+                return;
+            }
+
+            state.data.pdfs.forEach((pdf, index) => {
+                const card = document.createElement('div');
+                card.className = 'pdf-card';
+                
+                const coverStyle = pdf.cover ? `style="background-image: url('${pdf.cover}')"` : '';
+                const coverContent = pdf.cover ? '' : '<div class="pdf-icon" style="font-size: 3rem;">📄</div>';
+
+                card.innerHTML = `
+                    <div class="pdf-cover" ${coverStyle}>
+                        ${coverContent}
+                    </div>
+                    <div class="pdf-content">
+                        <div class="pdf-title">${pdf.title}</div>
+                        <div class="pdf-desc">${pdf.desc}</div>
+                        <div style="display: flex; gap: 10px; margin-top: auto;">
+                            <button onclick="openPdf('${pdf.url}', '${pdf.title}')" class="btn" style="flex: 1;">VISUALIZAR</button>
+                            ${state.currentUser.admin ? `<button class="btn btn-danger" style="padding: 10px;" onclick="deletePdf(${index})">X</button>` : ''}
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function openPdf(url, title) {
+            pauseAllVideos();
+            
+            let finalUrl = url;
+
+            // Lógica de proteção: Forçar visualização via Google Docs Viewer
+            if (url.includes('drive.google.com')) {
+                let fileId = '';
+                if (url.includes('/d/')) fileId = url.split('/d/')[1].split('/')[0];
+                else if (url.includes('id=')) fileId = url.split('id=')[1].split('&')[0];
+                
+                if (fileId) {
+                    finalUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(`https://drive.google.com/uc?id=${fileId}`)}&embedded=true`;
+                }
+            } else {
+                finalUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`;
+            }
+
+            document.getElementById('pdfGrid').classList.add('hidden');
+            document.getElementById('pdfViewer').classList.remove('hidden');
+            document.getElementById('pdfViewerTitle').innerText = title;
+            
+            const frame = document.getElementById('pdfFrame');
+            frame.src = 'about:blank';
+            
+            setTimeout(() => {
+                frame.src = finalUrl;
+            }, 100);
+        }
+
+        function closePdfViewer() {
+            document.getElementById('pdfGrid').classList.remove('hidden');
+            document.getElementById('pdfViewer').classList.add('hidden');
+            document.getElementById('pdfFrame').src = '';
+        }
+
+        // Bloquear clique direito no visualizador para dificultar download
+        document.addEventListener('contextmenu', function(e) {
+            if (document.getElementById('pdfViewer') && !document.getElementById('pdfViewer').classList.contains('hidden')) {
+                if (e.target.closest('.pdf-viewer-container')) {
+                    e.preventDefault();
+                    return false;
+                }
+            }
+        });
+
+        // ADMIN ACTIONS
+        let uploadTarget = 'video';
+
+        function triggerUpload(target) {
+            uploadTarget = target;
+            document.getElementById('fileUpload').click();
+        }
+
+        async function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            alert("INICIANDO UPLOAD... AGUARDE.");
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', 'ml_default'); 
+
+            try {
+                // Usando uma conta demo do Cloudinary pode causar erros 404 se o arquivo for removido rapidamente.
+                // Recomendo usar seu próprio Cloudinary ou um link direto estável.
+                // Utilizando um endpoint mais estável do Cloudinary. 
+                // Nota: Para produção, o ideal é que o usuário crie sua própria conta gratuita no Cloudinary e substitua 'demo' pelo seu cloud_name.
+                const res = await fetch('https://api.cloudinary.com/v1_1/dx9v7v86z/auto/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                
+                if (data.secure_url) {
+                    if (uploadTarget === 'video') {
+                        document.getElementById('editVideoUrl').value = data.secure_url;
+                        alert("VÍDEO CARREGADO COM SUCESSO.");
+                    } else if (uploadTarget === 'pdf') {
+                        // Automatização: Adiciona o PDF diretamente à biblioteca
+                        const title = file.name.replace(/\.[^/.]+$/, "").toUpperCase(); // Nome do arquivo como título
+                        const url = data.secure_url;
+                        const desc = "MATERIAL ADICIONADO VIA UPLOAD DIRETO.";
+                        
+                        if (!state.data.pdfs) state.data.pdfs = [];
+                        state.data.pdfs.push({ title, url, cover: '', desc });
+                        
+                        await syncData();
+                        renderPdfs();
+                        alert(`PDF "${title}" ADICIONADO AUTOMATICAMENTE À BIBLIOTECA.`);
+                    } else if (uploadTarget === 'vsl') {
+                        document.getElementById('vslUrlInput').value = data.secure_url;
+                        alert("VSL CARREGADA COM SUCESSO.");
+                    } else if (uploadTarget === 'cover') {
+                        document.getElementById('newPdfCover').value = data.secure_url;
+                        alert("CAPA CARREGADA COM SUCESSO.");
+                    }
+                } else {
+                    throw new Error("URL não gerada");
+                }
+            } catch (e) {
+                console.error("Erro no upload:", e);
+                alert("ERRO NO UPLOAD: O servidor de arquivos está temporariamente ocupado ou o arquivo é muito grande. \n\nDICA: Se o erro persistir, você pode subir o arquivo no Google Drive, copiar o link de compartilhamento (público) e colar no campo 'URL DO PDF' nas Opções Avançadas.");
+            }
+        }
+
+        async function updateVSL() {
+            state.data.vslUrl = document.getElementById('vslUrlInput').value;
+            const success = await syncData();
+            if (success) alert("VSL ATUALIZADA GLOBALMENTE.");
+        }
+
+        async function saveLessonChanges() {
+            const lesson = state.data.lessons[state.currentLessonIndex];
+            lesson.video = document.getElementById('editVideoUrl').value;
+            lesson.desc = document.getElementById('editDesc').value;
+            
+            const success = await syncData();
+            if (success) {
+                alert("AULA ATUALIZADA COM SUCESSO.");
+                showLesson(state.currentLessonIndex);
+            }
+        }
+
+        async function addNewPdf() {
+            const title = document.getElementById('newPdfTitle').value;
+            let url = document.getElementById('newPdfUrl').value.trim();
+            const cover = document.getElementById('newPdfCover').value.trim();
+            const desc = document.getElementById('newPdfDesc').value;
+
+            if (!title || !url) return alert("TÍTULO E URL SÃO OBRIGATÓRIOS.");
+
+            // Validação básica de URL para evitar links quebrados
+            if (!url.startsWith('http')) {
+                return alert("POR FAVOR, INSIRA UMA URL VÁLIDA (COMEÇANDO COM HTTP OU HTTPS).");
+            }
+
+            if (!state.data.pdfs) state.data.pdfs = [];
+            state.data.pdfs.push({ title, url, cover, desc });
+
+            const success = await syncData();
+            if (success) {
+                alert("PDF ADICIONADO À BIBLIOTECA.");
+                document.getElementById('newPdfTitle').value = '';
+                document.getElementById('newPdfUrl').value = '';
+                document.getElementById('newPdfCover').value = '';
+                document.getElementById('newPdfDesc').value = '';
+                renderPdfs();
+            }
+        }
+
+        async function deletePdf(index) {
+            if (confirm("DESEJA REMOVER ESTE MATERIAL?")) {
+                state.data.pdfs.splice(index, 1);
+                await syncData();
+                renderPdfs();
+            }
+        }
+
+        // UTILS
+        function pauseAllVideos() {
+            // Pausar Plyr se existir
+            if (window.currentPlayer) {
+                try { window.currentPlayer.pause(); } catch(e) {}
+            }
+
+            // Pausar vídeos nativos
+            const videos = document.querySelectorAll('video');
+            videos.forEach(v => {
+                try { v.pause(); } catch(e) {}
+            });
+
+            // Pausar iframes (YouTube/Vimeo)
+            const iframes = document.querySelectorAll('iframe');
+            iframes.forEach(iframe => {
+                try {
+                    const src = iframe.src;
+                    if (src.includes('vimeo.com')) {
+                        iframe.contentWindow.postMessage('{"method":"pause"}', '*');
+                        setTimeout(() => { iframe.src = src; }, 100);
+                    } else if (!src.includes('youtube.com')) {
+                        iframe.src = src;
+                    }
+                } catch(e) {
+                    console.error("Erro ao pausar iframe:", e);
+                }
+            });
+        }
+
+        function renderPlayer(url) {
+            if (!url) return '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#444;">AGUARDANDO TRANSMISSÃO...</div>';
+            
+            // YouTube Custom Player
+            if (url.includes('youtube.com') || url.includes('youtu.be')) {
+                let id = '';
+                if (url.includes('v=')) id = url.split('v=')[1].split('&')[0];
+                else id = url.split('/').pop();
+                
+                setTimeout(() => {
+                    if (window.Plyr) {
+                        const player = new Plyr('#player', {
+                            controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen'],
+                            youtube: { noCookie: true, rel: 0, showinfo: 0, iv_load_policy: 3, modestbranding: 1 }
+                        });
+                        window.currentPlayer = player;
+                    }
+                }, 100);
+
+                return `
+                    <div class="plyr__video-embed" id="player">
+                        <iframe src="https://www.youtube-nocookie.com/embed/${id}?origin=${window.location.origin}&iv_load_policy=3&modestbranding=1&playsinline=1&showinfo=0&rel=0&enablejsapi=1" 
+                                allowfullscreen allowtransparency allow="autoplay"></iframe>
+                    </div>
+                `;
+            }
+            
+            // Vimeo Camuflado
+            if (url.includes('vimeo.com')) {
+                const id = url.split('/').pop();
+                return `
+                    <div class="ghost-player-wrapper">
+                        <div class="ghost-overlay-top"></div>
+                        <iframe src="https://player.vimeo.com/video/${id}?api=1&badge=0&autopause=0&player_id=0&app_id=58479" 
+                                allow="autoplay; fullscreen; picture-in-picture" 
+                                allowfullscreen></iframe>
+                    </div>
+                `;
+            }
+
+            // Direct Video
+            return `<video id="mainVideo" controls controlsList="nodownload"><source src="${url}" type="video/mp4">SEU NAVEGADOR NÃO SUPORTA VÍDEO.</video>`;
+        }
+
+        // Script do Plyr
+        const script = document.createElement('script');
+        script.src = "https://cdn.plyr.io/3.7.8/plyr.js";
+        document.head.appendChild(script);
+
+        function toggleMobileMenu() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+
+        function logout() {
+            pauseAllVideos();
+            location.reload();
+        }
+
+        async function completeMission() {
+            pauseAllVideos();
+            if (!state.currentUser.progress) state.currentUser.progress = [];
+            if (!state.currentUser.progress.includes(state.currentLessonIndex)) {
+                state.currentUser.progress.push(state.currentLessonIndex);
+                
+                // Atualizar no banco global
+                const userIdx = state.data.users.findIndex(u => u.email === state.currentUser.email);
+                if (userIdx !== -1) {
+                    state.data.users[userIdx].progress = state.currentUser.progress;
+                    await syncData();
+                }
+                
+                renderModules();
+                alert("MISSÃO CONCLUÍDA, OPERADOR.");
+            }
+        }
+    </script>
+</body>
+</html>
